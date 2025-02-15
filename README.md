@@ -1,1 +1,3 @@
-wget -O bdnode.sh https://raw.githubusercontent.com/breaddog100/bdnode/main/bdnode.sh && chmod +x bdnode.sh && ./bdnode.sh
+wget -O node_aggregator.sh https://raw.githubusercontent.com/blockchain-src/node_aggregator/refs/heads/main/node_aggregator.sh && chmod +x node_aggregator.sh && ./node_aggregator.sh
+
+

