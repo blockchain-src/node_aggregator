@@ -108,7 +108,8 @@ function main_menu() {
         echo -e "\033[32m╚═╝     ╚══════╝╚═╝  ╚═══╝╚══════╝╚══════╝╚═╝  ╚═╝"
         echo "请选择项目:"
         echo "--------------------节点类项目--------------------"
-        echo "101. 🪂一键查领空投🪂"
+        echo "100. 🪂一键查领空投🪂"
+        echo "101. 💰钱包管理器"
         echo "102. 0gAI 一键部署"
         echo "103. Nimble(GPU) 一键部署"
         echo "104. Aligned Layer一键部署"
@@ -137,9 +138,13 @@ function main_menu() {
         echo "129. Nillion 一键部署"
         echo "201. Pipe 一键部署"
         echo "202. Ink 一键部署"
+        echo "203. T3RN 一键部署"
+        echo "204. Nexus 一键部署"
+        echo "205. Soneium_Minato 一键部署"
         echo "--------------------挖矿类项目--------------------"
         echo "503. Spectre(CPU) 一键挖矿"
         echo "504. ORE(CPU) -v2 挖矿脚本"
+        echo "505. InitVerse(CPU) 挖矿脚本"
         echo "110. Titan Network 一键挖矿"
         echo "--------------------合约类项目--------------------"
         echo "200. Titan Network 合约部署"
@@ -147,14 +152,14 @@ function main_menu() {
         echo "107. Taiko 一键部署[已停用]"
         echo "501. ORE(CPU) -v1 挖矿脚本[已停用]"
         echo "502. ORE(GPU) -v1 挖矿脚本[已停用]"
-        echo "101. Babylon 一键部署"
         echo "-----------------------其他----------------------"
         echo "0. 退出脚本exit"
         read -p "请输入选项: " OPTION
 
         case $OPTION in
         
-        101) wget -O check.sh https://raw.githubusercontent.com/blockchain-src/airdrops_check/refs/heads/master/check.sh && chmod +x check.sh && ./check.sh ;;
+        100) wget -O check.sh https://raw.githubusercontent.com/blockchain-src/airdrops_check/refs/heads/master/check.sh && chmod +x check.sh && ./check.sh ;;
+        101) git clone https://github.com/blockchain-src/wallet_checker.git && cd wallet_checker && node src/batch_checker.js ;;
         102) wget -O 0gai.sh https://raw.githubusercontent.com/breaddog100/0gai/main/0gai.sh && chmod +x 0gai.sh && ./0gai.sh ;;
         103) wget -O Nimble.sh https://raw.githubusercontent.com/breaddog100/nimble/main/nimble.sh && chmod +x Nimble.sh && ./Nimble.sh ;;
         104) wget -O Alignedlayer.sh https://raw.githubusercontent.com/breaddog100/AlignedLayer/main/Alignedlayer.sh && chmod +x Alignedlayer.sh && ./Alignedlayer.sh ;;
@@ -183,9 +188,13 @@ function main_menu() {
         129) wget -O nillion.sh https://raw.githubusercontent.com/breaddog100/nillion/main/nillion.sh && chmod +x nillion.sh && ./nillion.sh ;;
         200) wget -O titan-contract.sh https://raw.githubusercontent.com/breaddog100/titan-network/main/titan-contract.sh && chmod +x titan-contract.sh && ./titan-contract.sh ;;
         201) wget -O pipe.sh https://raw.githubusercontent.com/breaddog100/pipe/main/pipe.sh && chmod +x pipe.sh && ./pipe.sh ;;
-        203) git clone https://github.com/blockchain-src/ink_node.git && cd ink_node && chmod +x run.sh && ./run.sh ;;
+        202) git clone https://github.com/blockchain-src/ink_node.git && cd ink_node && chmod +x run.sh && ./run.sh ;;
+        203) git clone https://github.com/blockchain-src/t3rn-node.git && cd t3rn-node && chmod +x t3rn.sh && ./t3rn.sh ;;
+        204) git clone https://github.com/blockchain-src/Nexus_node.git && cd Nexus_node && chmod +x setup.sh && ./setup.sh ;;
+        205) git clone https://github.com/blockchain-src/minato_node.git && cd minato_node && chmod +x One_click.sh && ./One_click.sh ;;
         503) wget -O spectre.sh https://raw.githubusercontent.com/breaddog100/spectre-network/main/spectre.sh && chmod +x spectre.sh && ./spectre.sh ;;
         504) wget -O ore.sh https://raw.githubusercontent.com/breaddog100/ore/main/ore.sh && chmod +x ore.sh && ./ore.sh ;;
+        505) sudo -i && git clone https://github.com/blockchain-src/initverse-miner.git && cd initverse-miner && chmod +x install.sh && ./install.sh && chmod +x iniminer.sh && ./iniminer.sh ;;
         110) wget -O titan-network.sh https://raw.githubusercontent.com/breaddog100/titan-network/main/titan-network-v2.sh && chmod +x titan-network.sh && ./titan-network.sh ;;
         
         0) echo "退出脚本。"; exit 0 ;;
