@@ -111,8 +111,8 @@ function main_menu() {
         echo
         echo "请选择项目:"
         echo "--------------------节点类项目--------------------"
-        echo "100. 🪂一键查领空投🪂"
-        echo "101. 💰钱包管理器"
+        echo "100. 🪂 一键查领空投"
+        echo "101. 💰 钱包管理器"
         echo "102. 0gAI 一键部署"
         echo "103. Nimble(GPU) 一键部署"
         echo "104. Aligned Layer一键部署"
@@ -157,6 +157,7 @@ function main_menu() {
         echo "502. ORE(GPU) -v1 挖矿脚本[已停用]"
         echo "-----------------------其他----------------------"
         echo "0. 退出脚本exit"
+        echo
         read -p "请输入选项: " OPTION
 
         case $OPTION in
