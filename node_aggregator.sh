@@ -144,6 +144,7 @@ function main_menu() {
         echo "203. T3RN 一键部署"
         echo "204. Nexus 一键部署"
         echo "205. Soneium_Minato 一键部署"
+        echo "206. Gensyn-ai RL Swarm 一键部署"
         echo -e "\033[33m--------------------挖矿类项目--------------------"
         echo "503. Spectre(CPU) 一键挖矿"
         echo "504. ORE(CPU) -v2 挖矿脚本"
@@ -196,6 +197,7 @@ function main_menu() {
         203) git clone https://github.com/blockchain-src/t3rn-node.git && cd t3rn-node && chmod +x t3rn.sh && ./t3rn.sh ;;
         204) git clone https://github.com/blockchain-src/Nexus_node.git && cd Nexus_node && chmod +x setup.sh && ./setup.sh ;;
         205) git clone https://github.com/blockchain-src/minato_node.git && cd minato_node && chmod +x One_click.sh && ./One_click.sh ;;
+        206) git clone https://github.com/blockchain-src/Gensyn-ai.git &&  cd Gensyn-ai && chmod +x setup_rl-swarm.sh && ./setup_rl-swarm.sh ;;
         503) wget -O spectre.sh https://raw.githubusercontent.com/breaddog100/spectre-network/main/spectre.sh && chmod +x spectre.sh && ./spectre.sh ;;
         504) wget -O ore.sh https://raw.githubusercontent.com/breaddog100/ore/main/ore.sh && chmod +x ore.sh && ./ore.sh ;;
         505) sudo -i && git clone https://github.com/blockchain-src/initverse-miner.git && cd initverse-miner && chmod +x install.sh && ./install.sh && chmod +x iniminer.sh && ./iniminer.sh ;;
