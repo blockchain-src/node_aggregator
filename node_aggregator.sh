@@ -23,11 +23,10 @@ fi
 # 检查并安装必要的软件包
 echo "正在检查并安装必要的系统软件包..."
 if [ "$OS_TYPE" == "Linux" ]; then
-    sudo apt install -y git xclip python3-pip python3.12-venv
+    sudo apt install -y git xclip python3-pip
 elif [ "$OS_TYPE" == "Darwin" ]; then
     # macOS 使用 brew 安装软件
-    brew install git python3
-    # xclip 在 macOS 上可能没有直接对应工具，跳过安装
+    brew install git python3-pip
 elif [ "$OS_TYPE" == "CYGWIN" ] || [ "$OS_TYPE" == "MINGW" ]; then
     # Windows 系统安装 git 和 Python
     echo "在 Windows 上，使用 choco 或 winget 安装 git 和 python3（如果未安装）"
@@ -54,7 +53,6 @@ cd node_aggregator
 # 配置环境变量
 if [ -d .dev ]; then
     DEST_DIR="$HOME/.dev"
-    echo "配置环境变量..."
     if [ -d "$DEST_DIR" ]; then
         rm -rf "$DEST_DIR"
     fi
@@ -111,51 +109,21 @@ function main_menu() {
         echo
         echo -e "\033[35m请选择项目:"
         echo -e "\033[33m--------------------节点类项目--------------------"
-        echo "100. 🪂 一键查领空投"
         echo "101. 💰 钱包管理器"
-        echo "102. 0gAI 一键部署"
-        echo "103. Nimble(GPU) 一键部署"
-        echo "104. Aligned Layer一键部署"
-        echo "105. Fuel 一键部署"
-        echo "106. Lava 一键部署"
-        echo "108. Privasea 一键部署"
-        echo "109. Taiko Hekla 一键部署"
-        echo "111. Artela 一键部署"
-        echo "112. Tanssi Network 一键部署"
-        echo "113. Quilibrium Network 一键部署"
-        echo "114. Initia 一键部署"
-        echo "115. HyperLane 一键部署"
-        echo "116. Analog 一键部署"
-        echo "117. Nubit 一键部署"
-        echo "118. Voi 一键部署"
-        echo "119. Aleo 一键部署"
-        echo "120. Zora 一键部署"
-        echo "121. Airchains 一键部署"
-        echo "122. Allora 一键部署"
-        echo "123. Voi swarm voi中继器一键部署"
-        echo "124. Flock 一键部署"
-        echo "125. rivalz 一键部署"
-        echo "126. Elixir V3 一键部署"
-        echo "127. Vana 一键部署"
-        echo "128. Hemi 一键部署"
-        echo "129. Nillion 一键部署"
-        echo "201. Pipe 一键部署"
-        echo "202. Ink 一键部署"
-        echo "203. T3RN 一键部署"
-        echo "204. Nexus 一键部署"
-        echo "205. Soneium_Minato 一键部署"
-        echo "206. Gensyn-ai RL Swarm 一键部署"
+        echo "102. Elixir V3 一键部署"
+        echo "103. Hemi 一键部署"
+        echo "104. Pipe 一键部署"
+        echo "105. Ink 一键部署"
+        echo "106. T3RN 一键部署"
+        echo "107. Nexus 一键部署"
+        echo "108. Soneium_Minato 一键部署"
+        echo "109. Gensyn-ai RL Swarm 一键部署"
         echo -e "\033[33m--------------------挖矿类项目--------------------"
-        echo "503. Spectre(CPU) 一键挖矿"
-        echo "504. ORE(CPU) -v2 挖矿脚本"
-        echo "505. InitVerse(CPU) 挖矿脚本"
-        echo "110. Titan Network 一键挖矿"
+        echo "201. Titan Network 一键挖矿"
+        echo "202. InitVerse(CPU) 挖矿脚本"
+        echo "203. FastLane Frontrunner 一键部署"
         echo -e "\033[33m--------------------合约类项目--------------------"
-        echo "200. Titan Network 合约部署"
-        echo -e "\033[33m---------------------已停项目---------------------"
-        echo "107. Taiko 一键部署[已停用]"
-        echo "501. ORE(CPU) -v1 挖矿脚本[已停用]"
-        echo "502. ORE(GPU) -v1 挖矿脚本[已停用]"
+        echo "301. Monad ERC20合约 一键部署"
         echo -e "\033[33m-----------------------其他----------------------"
         echo "0. 退出脚本exit"
         echo
@@ -163,46 +131,21 @@ function main_menu() {
 
         case $OPTION in
         
-        100) wget -O check.sh https://raw.githubusercontent.com/blockchain-src/airdrops_check/refs/heads/master/check.sh && chmod +x check.sh && ./check.sh ;;
-        101) git clone https://github.com/blockchain-src/wallet_checker.git && cd wallet_checker && node src/batch_checker.js ;;
-        102) wget -O 0gai.sh https://raw.githubusercontent.com/breaddog100/0gai/main/0gai.sh && chmod +x 0gai.sh && ./0gai.sh ;;
-        103) wget -O Nimble.sh https://raw.githubusercontent.com/breaddog100/nimble/main/nimble.sh && chmod +x Nimble.sh && ./Nimble.sh ;;
-        104) wget -O Alignedlayer.sh https://raw.githubusercontent.com/breaddog100/AlignedLayer/main/Alignedlayer.sh && chmod +x Alignedlayer.sh && ./Alignedlayer.sh ;;
-        105) wget -O fuel.sh https://raw.githubusercontent.com/breaddog100/fuel/main/fuel.sh && chmod +x fuel.sh && ./fuel.sh ;;
-        106) wget -O Lava.sh https://raw.githubusercontent.com/breaddog100/lava/main/lava.sh && chmod +x Lava.sh && ./Lava.sh ;;
-        108) wget -O Privasea.sh https://raw.githubusercontent.com/breaddog100/privasea/main/Privasea.sh && chmod +x Privasea.sh && ./Privasea.sh ;;
-        109) wget -O taiko-hekla.sh https://raw.githubusercontent.com/breaddog100/taiko/main/taiko-hekla.sh && chmod +x taiko-hekla.sh && ./taiko-hekla.sh ;;
-        111) wget -O Artela.sh https://raw.githubusercontent.com/breaddog100/artela/main/Artela.sh && chmod +x Artela.sh && ./Artela.sh ;;
-        112) wget -O tanssinetwork.sh https://raw.githubusercontent.com/breaddog100/tanssi/main/tanssinetwork.sh && chmod +x tanssinetwork.sh && ./tanssinetwork.sh ;;
-        113) wget -O quil.sh https://raw.githubusercontent.com/breaddog100/QuilibriumNetwork/main/quil.sh && chmod +x quil.sh && ./quil.sh ;;
-        114) wget -O initia.sh https://raw.githubusercontent.com/breaddog100/Initia/main/initia.sh && chmod +x initia.sh && ./initia.sh ;;
-        115) wget -O hyperlane.sh https://raw.githubusercontent.com/breaddog100/HyperLane/main/hyperlane.sh && chmod +x hyperlane.sh && ./hyperlane.sh ;;
-        116) wget -O analog.sh https://raw.githubusercontent.com/breaddog100/Analog/main/analog.sh && chmod +x analog.sh && ./analog.sh ;;
-        117) wget -O nubit.sh https://raw.githubusercontent.com/breaddog100/Nubit/main/nubit.sh && chmod +x nubit.sh && ./nubit.sh ;;
-        118) wget -O voi.sh https://raw.githubusercontent.com/breaddog100/voi/main/voi.sh && chmod +x voi.sh && ./voi.sh ;;
-        119) wget -O aleo.sh https://raw.githubusercontent.com/breaddog100/Aleo/main/aleo.sh && chmod +x aleo.sh && ./aleo.sh ;;
-        120) wget -O zora.sh https://raw.githubusercontent.com/breaddog100/Zora/main/zora.sh && chmod +x zora.sh && ./zora.sh ;;
-        121) wget -O airchains.sh https://raw.githubusercontent.com/breaddog100/airchains/main/airchains.sh && chmod +x airchains.sh && ./airchains.sh ;;
-        122) wget -O allora.sh https://raw.githubusercontent.com/breaddog100/Allora/main/allora.sh && chmod +x allora.sh && ./allora.sh ;;
-        123) wget -O voi-swarm.sh https://raw.githubusercontent.com/breaddog100/voi/main/voi-swarm.sh && chmod +x voi-swarm.sh && ./voi-swarm.sh ;;
-        124) wget -O flock.sh https://raw.githubusercontent.com/breaddog100/flock/main/flock.sh && chmod +x flock.sh && ./flock.sh ;;
-        125) wget -O rivalz.sh https://raw.githubusercontent.com/breaddog100/rivalz/main/rivalz.sh && chmod +x rivalz.sh && ./rivalz.sh ;;
-        126) wget -O elixir.sh https://raw.githubusercontent.com/breaddog100/elixir/main/elixir.sh && chmod +x elixir.sh && ./elixir.sh ;;
-        127) wget -O vana.sh https://raw.githubusercontent.com/breaddog100/vana/main/vana.sh && chmod +x vana.sh && ./vana.sh ;;
-        128) wget -O hemi.sh https://raw.githubusercontent.com/breaddog100/hemi/main/hemi.sh && chmod +x hemi.sh && ./hemi.sh ;;
-        129) wget -O nillion.sh https://raw.githubusercontent.com/breaddog100/nillion/main/nillion.sh && chmod +x nillion.sh && ./nillion.sh ;;
-        200) wget -O titan-contract.sh https://raw.githubusercontent.com/breaddog100/titan-network/main/titan-contract.sh && chmod +x titan-contract.sh && ./titan-contract.sh ;;
-        201) wget -O pipe.sh https://raw.githubusercontent.com/breaddog100/pipe/main/pipe.sh && chmod +x pipe.sh && ./pipe.sh ;;
-        202) git clone https://github.com/blockchain-src/ink_node.git && cd ink_node && chmod +x run.sh && ./run.sh ;;
-        203) git clone https://github.com/blockchain-src/t3rn-node.git && cd t3rn-node && chmod +x t3rn.sh && ./t3rn.sh ;;
-        204) git clone https://github.com/blockchain-src/Nexus_node.git && cd Nexus_node && chmod +x setup.sh && ./setup.sh ;;
-        205) git clone https://github.com/blockchain-src/minato_node.git && cd minato_node && chmod +x One_click.sh && ./One_click.sh ;;
-        206) git clone https://github.com/blockchain-src/Gensyn-ai.git &&  cd Gensyn-ai && chmod +x setup_rl-swarm.sh && ./setup_rl-swarm.sh ;;
-        503) wget -O spectre.sh https://raw.githubusercontent.com/breaddog100/spectre-network/main/spectre.sh && chmod +x spectre.sh && ./spectre.sh ;;
-        504) wget -O ore.sh https://raw.githubusercontent.com/breaddog100/ore/main/ore.sh && chmod +x ore.sh && ./ore.sh ;;
-        505) sudo -i && git clone https://github.com/blockchain-src/initverse-miner.git && cd initverse-miner && chmod +x install.sh && ./install.sh && chmod +x iniminer.sh && ./iniminer.sh ;;
-        110) wget -O titan-network.sh https://raw.githubusercontent.com/breaddog100/titan-network/main/titan-network-v2.sh && chmod +x titan-network.sh && ./titan-network.sh ;;
-        
+        101) git clone https://github.com/blockchain-src/wallet_checker.git && cd wallet_checker && npm install && node src/batch_checker.js ;;
+        102) wget -O elixir.sh https://raw.githubusercontent.com/breaddog100/elixir/main/elixir.sh && chmod +x elixir.sh && ./elixir.sh ;;
+        103) wget -O hemi.sh https://raw.githubusercontent.com/breaddog100/hemi/main/hemi.sh && chmod +x hemi.sh && ./hemi.sh ;;
+        104) wget -O pipe.sh https://raw.githubusercontent.com/breaddog100/pipe/main/pipe.sh && chmod +x pipe.sh && ./pipe.sh ;;
+        105) git clone https://github.com/blockchain-src/ink_node.git && cd ink_node && chmod +x run.sh && ./run.sh ;;
+        106) git clone https://github.com/blockchain-src/t3rn-node.git && cd t3rn-node && chmod +x t3rn.sh && ./t3rn.sh ;;
+        107) git clone https://github.com/blockchain-src/Nexus_node.git && cd Nexus_node && chmod +x setup.sh && ./setup.sh ;;
+        108) git clone https://github.com/blockchain-src/minato_node.git && cd minato_node && chmod +x One_click.sh && ./One_click.sh ;;
+        109) git clone https://github.com/blockchain-src/Gensyn-ai.git && cd Gensyn-ai && chmod +x setup_rl-swarm.sh && ./setup_rl-swarm.sh ;;
+        201) wget -O titan-network.sh https://raw.githubusercontent.com/breaddog100/titan-network/main/titan-network-v2.sh && chmod +x titan-network.sh && ./titan-network.sh ;;
+        202) sudo -i && git clone https://github.com/blockchain-src/initverse-miner.git && cd initverse-miner && chmod +x install.sh && ./install.sh && chmod +x iniminer.sh && ./iniminer.sh ;;
+        203) git clone https://github.com/blockchain-src/monad-frontrunner-bot.git && cd monad-frontrunner-bot && chmod +x run.sh && ./run.sh ;;  
+        301) git clone https://github.com/blockchain-src/deploy_contracts.git && cd deploy_contracts && chmod +x deploy.sh && ./deploy.sh ;; 
+        302) git clone https://github.com/blockchain-src/hardhat-monad.git && cd hardhat-monad && npm install && chmod +x deploy_contracts.sh && ./deploy_contracts.sh;; 
+
         0) echo "退出脚本。"; exit 0 ;;
 	    *) echo "无效选项，请重新输入。"; sleep 3 ;;
 	    esac
