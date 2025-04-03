@@ -124,6 +124,7 @@ function main_menu() {
         echo "203. FastLane Frontrunner 一键部署"
         echo -e "\033[33m--------------------合约类项目--------------------"
         echo "301. Monad ERC20合约 一键部署"
+        echo "302. Monad 多个智能合约 一键部署"
         echo -e "\033[33m-----------------------其他----------------------"
         echo "0. 退出脚本exit"
         echo
